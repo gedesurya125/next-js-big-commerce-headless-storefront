@@ -1,12 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import Image from "next/image";
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import { useQuery, gql } from "@apollo/client";
-import { getAllProducts } from "@/apollo/shopifyFetch";
-import { getStorefrontApiUrl, getPrivateTokenHeaders } from "@/shopify";
-import { useShop } from "@shopify/hydrogen-react";
 
 // External Components
 import { Box, Section } from "@thepuzzlers/pieces";
@@ -16,9 +10,7 @@ import { CartPreview } from "@/components/CartPreview";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home({ shopifyData }) {
-  console.log("this is shopify data", shopifyData);
-
+export default function Home({}) {
   return (
     <>
       <Head>
@@ -27,65 +19,11 @@ export default function Home({ shopifyData }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <NavigationBar shopData={shopifyData} />
+      <NavigationBar />
       <Section as="main">
-        <ProductsDisplay products={shopifyData?.data?.products} />
-        <CartPreview />
+        {/* <ProductsDisplay products={shopifyData?.data?.products} />
+        <CartPreview /> */}
       </Section>
     </>
   );
-}
-
-export async function getServerSideProps() {
-  // A Storefront API query, defined in a separate file where you make queries.
-  const GRAPHQL_QUERY = `
-    query {
-      shop {
-        name
-      }
-      products(first: 10) {
-        nodes {
-          id
-          images(first: 10) {
-            nodes {
-              id
-              altText
-              url
-            }
-          }
-          title
-          variants(first: 10) {
-            nodes {
-              id
-              title
-              price{
-                currencyCode
-                amount
-              }
-              selectedOptions {
-                name
-                value
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  console.log("this is the storefront api url", getStorefrontApiUrl());
-
-  const response = await fetch(getStorefrontApiUrl(), {
-    body: JSON.stringify({
-      // A Storefront API query
-      query: GRAPHQL_QUERY,
-    }),
-    // When possible, add the 'buyerIp' property.
-    headers: getPrivateTokenHeaders({ buyerIp: "..." }),
-    method: "POST",
-  });
-
-  const shopifyData = await response.json();
-
-  return { props: { shopifyData } };
 }
